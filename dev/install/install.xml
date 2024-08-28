@@ -1,0 +1,43 @@
+<project name="install" basedir="." default="all">
+
+	<property name="dcinstall.require.libs" value="> 5-0-0b5"/>
+	<property name="dcinstall.require.common" value="> 5-0-0b21"/>
+	<property name="dcinstall.require.engine" value="> 5-0-0b422"/>
+	<property name="dcinstall.require.repository" value="> 5-0-0b242"/>
+
+	<target name="install" depends="copyTmpToDeploy">
+		<mkdir dir="${dc.conf.dir}/dtd"/>
+		
+		<if>
+  		  <available file="${dc.runtime.dir}/tomcat/webapps/techpackide/lib/parser.jar"/>
+  		  <then>
+  			<delete file="${dc.runtime.dir}/tomcat/webapps/techpackide/lib/parser.jar"/>
+			<copy todir="${dc.runtime.dir}/tomcat/webapps/techpackide/lib" flatten="true">
+				<fileset dir="${dc.platform.dir}">
+  					<include name="**/dclib/parser.jar"/>
+  				</fileset>
+  			</copy>
+  		  </then>
+  		  <else/>
+  	    </if>
+		
+		<dirset id="libs_dir" dir="${dc.platform.dir}">
+			<include name="libs-*"/>
+		</dirset>
+		<!-- generate path name of the above dir -->
+		<pathconvert property="libs_dir_name" refid="libs_dir" pathsep=","/> 
+		
+		<if>
+			<available file="${libs_dir_name}/dclib/commons-compress-1.20.jar" />
+			<then>
+				<delete file="${libs_dir_name}/dclib/commons-compress-1.20.jar" />
+			</then>
+		</if>
+		<copy file="${dc.installer.dir}/tmp/dclib/commons-compress-1.20.jar" toFile="${libs_dir_name}/dclib/commons-compress-1.20.jar" />
+		<chmod file="${libs_dir_name}/dclib/commons-compress-1.20.jar" perm="640" />
+		
+	</target>
+
+	<target name="update" depends="moveToObsolete,install"/>
+
+</project>
